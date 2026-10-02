@@ -1,0 +1,26 @@
+# Python 缓存与环境
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+venv/
+.env/
+
+# PyInstaller 打包生成物
+build/
+dist/
+*.spec
+
+# 编辑器与系统文件
+.idea/
+.vscode/
+*.swp
+*.bak
+*~
+Thumbs.db
+Desktop.ini
+
+# 临时测试与日志文件
+*.log
+SaveData_Backup_*/
+scratch/
