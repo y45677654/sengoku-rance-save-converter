@@ -159,12 +159,31 @@ def convert_gsave_data(old_raw: bytes) -> bytes:
     return new_raw
 
 
+def map_target_save_filename(src_filename: str) -> str:
+    """
+    智能将各种旧版存档（包括日文原版ランス７_、GBK乱码前缀愼嵓呔呥售_等）规范化映射为 Steam 官方标准格式
+    """
+    import re
+    m_num = re.search(r'_(\d+)\.(as[d2])$', src_filename, re.IGNORECASE)
+    if m_num:
+        num = int(m_num.group(1))
+        ext = "." + m_num.group(2).upper()
+        return f"Rance7_{num:03d}{ext}"
+
+    m_sys = re.search(r'_(sys)\.(asd)$', src_filename, re.IGNORECASE)
+    if m_sys:
+        ext = "." + m_sys.group(2).upper()
+        return f"Rance7_Sys{ext}"
+
+    return src_filename
+
+
 def run_migration(source_dir: str, target_dir: str) -> None:
     """
     执行完整的备份、转换与迁移任务
     """
     print("=" * 68)
-    print("  战国兰斯（兰斯7）旧版本存档 -> Steam 官方版 自动转换导入程序")
+    print("  战国兰斯（兰斯7）旧版本存档 -> Steam 官方版 自动转换导入程序 (v1.0.1)")
     print("=" * 68)
     print(f"【源存档目录】: {source_dir}")
     print(f"【目标 Steam 目录】: {target_dir}\n")
@@ -202,7 +221,8 @@ def run_migration(source_dir: str, target_dir: str) -> None:
     for filename in source_files:
         ext = os.path.splitext(filename)[1].upper()
         source_file_path = os.path.join(source_dir, filename)
-        target_file_path = os.path.join(target_dir, filename)
+        target_filename = map_target_save_filename(filename)
+        target_file_path = os.path.join(target_dir, target_filename)
 
         # 战国兰斯的有效存档格式为 .ASD（进度/全局存档）和 .AS2（缩略元数据）
         if ext in [".ASD", ".AS2"]:
@@ -225,7 +245,8 @@ def run_migration(source_dir: str, target_dir: str) -> None:
                 with open(target_file_path, "wb") as f_out:
                     f_out.write(new_encrypted_bytes)
 
-                print(f"  [√] 成功转换: {filename:<16} (大小: {len(new_encrypted_bytes):>7} 字节)")
+                display_name = f"{filename} -> {target_filename}" if filename != target_filename else filename
+                print(f"  [√] 成功转换: {display_name:<28} (大小: {len(new_encrypted_bytes):>7} 字节)")
                 converted_count += 1
 
             except Exception as ex:

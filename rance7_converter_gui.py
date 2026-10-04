@@ -243,9 +243,44 @@ def detect_steam_rance_path() -> str:
     return ""
 
 
+# ==================== 存档文件名智能规范化映射器 ====================
+
+def map_target_save_filename(src_filename: str, mode: str = "old_to_steam") -> str:
+    """
+    智能将各种旧版存档（包括日文原版ランス７_、GBK乱码前缀愼嵓呔呥售_等）规范化映射为目标版本标准文件名
+    例如：
+      愼嵓呔呥售_001.ASD -> Rance7_001.ASD
+      ランス７_Sys.ASD   -> Rance7_Sys.ASD
+      rance7_1.asd       -> Rance7_001.ASD
+    【设计逻辑】：
+    1. 日文原版战国兰斯的存档前缀通常为 'ランス７_'，在非日文系统下解压时常因编码错乱变为乱码（如 '愼嵓呔呥售_'）。
+    2. Steam 官方版强制只识别以 'Rance7_' 开头的文件，因此在导入 Steam 时必须统一规范化映射。
+    """
+    # 匹配末尾的核心数字序号及扩展名：_001.asd, _001.as2 等
+    m_num = re.search(r'_(\d+)\.(as[d2])$', src_filename, re.IGNORECASE)
+    if m_num:
+        num = int(m_num.group(1))
+        ext = "." + m_num.group(2).upper()
+        if mode in ["old_to_steam", "auto"]:
+            return f"Rance7_{num:03d}{ext}"
+        elif mode == "steam_to_old":
+            return f"Rance7_{num:03d}{ext}"
+
+    # 匹配末尾的系统CG进度存档标识：_sys.asd
+    m_sys = re.search(r'_(sys)\.(asd)$', src_filename, re.IGNORECASE)
+    if m_sys:
+        ext = "." + m_sys.group(2).upper()
+        if mode in ["old_to_steam", "auto"]:
+            return f"Rance7_Sys{ext}"
+        elif mode == "steam_to_old":
+            return f"Rance7_Sys{ext}"
+
+    return src_filename
+
+
 # ==================== 国际化多语言文本字典 (i18n) ====================
 
-APP_VERSION = "v1.0.0"
+APP_VERSION = "v1.0.1"
 
 I18N = {
     "zh_CN": {
@@ -273,7 +308,7 @@ I18N = {
         "about_text": (
             f"战国兰斯（兰斯7）存档转换与导入工具 {APP_VERSION}\n"
             "=========================================\n\n"
-            "【转换器版本】：v1.0.0 (正式版 / Initial Release)\n"
+            "【转换器版本】：v1.0.1 (维护更新版 / Maintenance Release)\n"
             "【开源协议】：GNU General Public License v3.0\n\n"
             "【适用的旧版游戏】：\n"
             "  • 《戦国ランス》日文原版 (v1.00 ~ v1.04 各版本)\n"
@@ -350,7 +385,7 @@ I18N = {
         "about_text": (
             f"Sengoku Rance (Rance 7) Save Data Converter {APP_VERSION}\n"
             "=========================================\n\n"
-            "【Converter Version】: v1.0.0 (Official Release)\n"
+            "【Converter Version】: v1.0.1 (Maintenance Release)\n"
             "【License】: GNU General Public License v3.0\n\n"
             "【Supported Legacy Game Versions】:\n"
             "  • Sengoku Rance Japanese Original (v1.00 ~ v1.04)\n"
@@ -801,7 +836,8 @@ class RanceSaveConverterApp:
             for fn in source_files:
                 ext = os.path.splitext(fn)[1].upper()
                 src_fp = os.path.join(src, fn)
-                dst_fp = os.path.join(dst, fn)
+                target_fn = map_target_save_filename(fn, mode=selected_mode)
+                dst_fp = os.path.join(dst, target_fn)
 
                 if ext in [".ASD", ".AS2"]:
                     if fn.lower() == "msgskip.asd":
@@ -815,7 +851,8 @@ class RanceSaveConverterApp:
                         with open(dst_fp, "wb") as f_out:
                             f_out.write(encrypted)
                         converted_success += 1
-                        self.log(self.t("log_converted_file", file=fn, size=len(encrypted)))
+                        display_name = f"{fn} -> {target_fn}" if fn != target_fn else fn
+                        self.log(self.t("log_converted_file", file=display_name, size=len(encrypted)))
                     except Exception as ex:
                         failures.append((fn, str(ex)))
                         self.log(self.t("log_failed_file", file=fn, err=ex))

@@ -1,6 +1,6 @@
 # 战国兰斯存档转换器 (Sengoku Rance Save Converter)
 
-[![Version: v1.0.0](https://img.shields.io/badge/Version-v1.0.0-orange.svg)](https://github.com/y45677654/sengoku-rance-save-converter/releases)
+[![Version: v1.0.1](https://img.shields.io/badge/Version-v1.0.1-orange.svg)](https://github.com/y45677654/sengoku-rance-save-converter/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
@@ -17,12 +17,12 @@
 ### 🎯 版本与兼容性支持列表 (Compatibility Matrix)
 
 #### 1. 转换器版本
-* **当前版本**：`v1.0.0` (正式版 / Initial Release)
+* **当前版本**：`v1.0.1` (维护更新版 / Maintenance Release)
 
 #### 2. 支持的源游戏版本（旧版战国兰斯）
 | 游戏发行版本 | 版本号 | 语言/补丁 | 兼容状态 | 说明 |
 | :--- | :--- | :--- | :---: | :--- |
-| **《戦国ランス》日文原版** | v1.00 ~ v1.04 | 日语 | **完全支持** | 官方光盘版、DLsite 下载版等 |
+| **《戦国ランス》日文原版** | v1.00 ~ v1.04 | 日语 | **完全支持** | 官方光盘版/DLsite 版，自动识别 `ランス７_*.ASD` 及中文系统解压乱码文件名并重命名映射 |
 | **爱丽丝汉化组汉化版** | 基于 v1.04 内核 | 简体中文 / 繁体中文 | **完全支持** | 国内最广泛流传的汉化版本 |
 | **早期海外民间英化版** | 基于 v1.04 内核 | 英语 | **完全支持** | Anime-Sharing 论坛英化补丁等 |
 | **网络全CG通关存档** | 任意旧版 | 全语言 | **完全支持** | `Rance7_Sys.ASD` 全CG/全回想继承 |
@@ -149,3 +149,15 @@ Before launching the game for the first time after conversion:
 - **License**: [GNU General Public License v3.0](LICENSE).
 - **Disclaimer**: 本工具仅供个人数据迁移与单机存档备份交流使用。游戏资产与知识产权归原开发商 AliceSoft 及发行商所有。  
   *This tool is developed for game save preservation and personal data migration only. All game assets and copyrights belong to AliceSoft and MangaGamer / Shiravune.*
+
+---
+
+## 📝 更新日志 (Changelog)
+
+### `v1.0.1`
+- **新增**: 日文原版（`ランス７_*.ASD`）与中文 Windows 系统直接解压导致的乱码前缀（如 `愼嵓呔呥售_*.ASD`）自动识别与智能规范化重命名机制。
+- **优化**: 导入 Steam 官方版时自动规范化为 `Rance7_%03d.ASD`、`Rance7_%03d.AS2` 与 `Rance7_Sys.ASD`，彻底解决进入游戏后无法识别存档的问题。
+- **优化**: 转换日志中清晰显示文件名映射变更路径（例如 `愼嵓呔呥售_001.ASD -> Rance7_001.ASD`）。
+
+### `v1.0.0`
+- 首个正式开源版本，支持旧版战国兰斯与 Steam 官方版存档双向加解密转换、Steam 路径自动探测与自动备份。
